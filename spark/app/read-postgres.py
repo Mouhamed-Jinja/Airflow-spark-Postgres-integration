@@ -2,18 +2,19 @@ import sys
 from pyspark.sql import SparkSession
 from pyspark.sql import functions as F
 
-# Create spark session
-spark = (SparkSession
-    .builder
+spark = (SparkSession \
+    .builder \
+    .config("spark.jars", "/opt/bitnami/spark/jars/postgres_jars/postgresql-42.jar") \
     .getOrCreate()
 )
 
 ####################################
 # Parameters
 ####################################
-postgres_db = sys.argv[1]
-postgres_user = sys.argv[2]
-postgres_pwd = sys.argv[3]
+postgres_db = "jdbc:postgresql://postgres:5432/load_movies"
+postgres_user = "airflow"
+postgres_pwd = "airflow"
+
 
 ####################################
 # Read Postgres
@@ -29,6 +30,7 @@ df_movies = (
     .option("dbtable", "public.movies")
     .option("user", postgres_user)
     .option("password", postgres_pwd)
+    .option("driver", "org.postgresql.Driver")
     .load()
 )
 
@@ -39,6 +41,7 @@ df_ratings = (
     .option("dbtable", "public.ratings")
     .option("user", postgres_user)
     .option("password", postgres_pwd)
+    .option("driver", "org.postgresql.Driver")
     .load()
 )
 
@@ -65,5 +68,6 @@ print("######################################")
 print("EXECUTING QUERY AND SAVING RESULTS")
 print("######################################")
 # Save result to a CSV file
-df_result.coalesce(1).write.format("csv").mode("overwrite").save("/usr/local/spark/resources/data/output_postgres", header=True)
+df_result.show(10)
+df_result.coalesce(1).write.format("csv").mode("overwrite").save("/opt/airflow/spark/resources/data/postgres_output", header=True)
 

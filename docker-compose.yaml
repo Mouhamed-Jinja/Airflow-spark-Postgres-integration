@@ -19,7 +19,7 @@ x-airflow-common:
     - ./logs:/opt/airflow/logs
     - ./plugins:/opt/airflow/plugins
     - ./spark/app:/opt/airflow/spark/app
-    - ./spark/resources:/opt/airflow//spark/resources
+    - ./spark/resources:/opt/airflow/spark/resources
   user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
   depends_on:
     postgres:
@@ -94,10 +94,13 @@ services:
       - SPARK_SSL_ENABLED=no
     volumes:
       - ./spark/app:/opt/airflow/spark/app
-      - ./spark/resources:/opt/airflow//spark/resources
+      - ./spark/resources:/opt/airflow/spark/resources
+      - ./spark/resources/postgres_jars:/opt/bitnami/spark/jars/postgres_jars
 
 volumes:
   postgres-db-volume:
 
 networks:
   spark-net:
+
+

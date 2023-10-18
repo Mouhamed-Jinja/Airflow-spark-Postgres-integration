@@ -4,19 +4,19 @@ from pyspark.sql.functions import from_unixtime, col, to_timestamp
 from pyspark.sql.types import DoubleType
 
 # Create spark session
-spark = (SparkSession
-    .builder
+spark = (SparkSession \
+    .builder \
+    .config("spark.jars", "/opt/bitnami/spark/jars/postgres_jars/postgresql-42.jar") \
     .getOrCreate()
 )
-
 ####################################
 # Parameters
 ####################################
-movies_file = sys.argv[1]
-ratings_file = sys.argv[2]
-postgres_db = sys.argv[3]
-postgres_user = sys.argv[4]
-postgres_pwd = sys.argv[5]
+movies_file_path ="/opt/airflow/spark/resources/data/movies.csv" 
+ratings_file_path ="/opt/airflow/spark/resources/data/ratings.csv" 
+postgres_db = "jdbc:postgresql://postgres:5432/load_movies"
+postgres_user = "airflow"
+postgres_pwd = "airflow"
 
 ####################################
 # Read CSV Data
@@ -26,26 +26,28 @@ print("READING CSV FILES")
 print("######################################")
 
 df_movies_csv = (
-    spark.read
-    .format("csv")
-    .option("header", True)
-    .load(movies_file)
+    spark.read.csv(movies_file_path, header=True)
 )
 
+df_movies_csv.show(5)
+
+
 df_ratings_csv = (
-    spark.read
-    .format("csv")
-    .option("header", True)
-    .load(ratings_file)
-    .withColumnRenamed("timestamp","timestamp_epoch")
+    spark.read \
+        .csv(ratings_file_path, header=True) \
+        .withColumnRenamed("timestamp","timestamp_epoch")
 )
+
+df_ratings_csv.show(5)
 
 # Convert epoch to timestamp and rating to DoubleType
 df_ratings_csv_fmt = (
-    df_ratings_csv
-    .withColumn('rating', col("rating").cast(DoubleType()))
-    .withColumn('timestamp', to_timestamp(from_unixtime(col("timestamp_epoch"))))
+    df_ratings_csv \
+    .withColumn('rating', col("rating").cast(DoubleType())) \
+    .withColumn('timestamp', to_timestamp(from_unixtime(col("timestamp_epoch")))) \
+    .drop("timestamp_epoch")
 )
+df_ratings_csv_fmt.show(5)
 
 ####################################
 # Load data to Postgres
@@ -61,19 +63,20 @@ print("######################################")
     .option("dbtable", "public.movies")
     .option("user", postgres_user)
     .option("password", postgres_pwd)
+    .option("driver", "org.postgresql.Driver")
     .mode("overwrite")
     .save()
 )
 
+
 (
-     df_ratings_csv_fmt
-     .select([c for c in df_ratings_csv_fmt.columns if c != "timestamp_epoch"])
-     .write
-     .format("jdbc")
-     .option("url", postgres_db)
-     .option("dbtable", "public.ratings")
-     .option("user", postgres_user)
-     .option("password", postgres_pwd)
-     .mode("overwrite")
-     .save()
+    df_ratings_csv_fmt.write
+    .format("jdbc")
+    .option("url", postgres_db)
+    .option("dbtable", "public.ratings")
+    .option("user", postgres_user)
+    .option("password", postgres_pwd)
+    .option("driver", "org.postgresql.Driver")
+    .mode("overwrite")
+    .save()
 )
