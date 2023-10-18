@@ -97,6 +97,22 @@ services:
       - ./spark/resources:/opt/airflow/spark/resources
       - ./spark/resources/postgres_jars:/opt/bitnami/spark/jars/postgres_jars
 
+  spark-worker:
+    image: bitnami/spark:3
+    container_name: spark_worker
+    hostname: spark-worker
+    networks:
+      - spark-net
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-service:7077
+      - SPARK_WORKER_MEMORY=1g
+      - SPARK_WORKER_CORES=1
+    volumes:
+      - ./spark/app:/opt/airflow/spark/app
+      - ./spark/resources:/opt/airflow/spark/resources
+      - ./spark/resources/postgres_jars:/opt/bitnami/spark/jars/postgres_jars
+
 volumes:
   postgres-db-volume:
 
