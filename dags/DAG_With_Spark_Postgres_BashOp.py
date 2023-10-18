@@ -3,7 +3,7 @@ from airflow.operators.bash import BashOperator
 from datetime import datetime, timedelta
 
 default_args = {
-    'owner': 'coder2j',
+    'owner': 'Mohamed_Younes',
     'retries': 5,
     'retry_delay': timedelta(minutes=2)
 }
@@ -16,14 +16,14 @@ with DAG(
 ) as dag:
 
     read_csv_load_into_postgres= BashOperator(
-        task_id='Extract_Load_v1',
+        task_id='Extract_v1',
         bash_command='spark-submit --jars /opt/airflow/spark/resources/postgres_jars/postgresql-42.jar /opt/airflow/spark/app/load-postgres.py',
         
     )
     
    
     read_from_postgres= BashOperator(
-        task_id='Transform_Save_v1',
+        task_id='Transform_Load_v1',
         bash_command='spark-submit --jars /opt/airflow/spark/resources/postgres_jars/postgresql-42.jar /opt/airflow/spark/app/read-postgres.py',
     )
     
