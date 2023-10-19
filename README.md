@@ -76,7 +76,7 @@ Feel free to customize the DAG and tasks according to your specific requirements
     - spark-net
   environment:
     - SPARK_MODE=worker
-    - SPARK_MASTER_URL=spark://spark-master:7077
+    - SPARK_MASTER_URL=spark://spark-service:7077
     - SPARK_WORKER_MEMORY=2g
     - SPARK_WORKER_CORES=2
   volumes:
