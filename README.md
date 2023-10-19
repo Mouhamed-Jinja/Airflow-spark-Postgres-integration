@@ -2,7 +2,8 @@
 
 The simplest way to set up a cluster environment that includes Spark, Airflow, and Postgres. This project demonstrates the integration of Spark, Airflow, and Postgres to create a data processing pipeline.
 
-![architecture](https://github.com/Mouhamed-Jinja/Airflow-spark-integration/assets/132110499/262061d8-cf80-48bf-a66b-64f1039656b0)
+![Picsart_23-10-19_17-32-31-453](https://github.com/Mouhamed-Jinja/Airflow-spark-Postgres-integration/assets/132110499/8ea65de8-b257-4fdf-b27b-1f7d517fc9b0)
+
 
 ## Prerequisites
 
